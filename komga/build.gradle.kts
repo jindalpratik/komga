@@ -51,9 +51,12 @@ dependencies {
   implementation("com.github.gotson:spring-session-caffeine:2.0.0")
   implementation("org.springframework.data:spring-data-commons")
 
+  // Add PostgreSQL JDBC driver
+  implementation("org.postgresql:postgresql")
   kapt("org.springframework.boot:spring-boot-configuration-processor:3.4.0")
 
   implementation("org.flywaydb:flyway-core")
+  implementation("org.flywaydb:flyway-database-postgresql")
 
   api("io.github.oshai:kotlin-logging-jvm:6.0.9")
 

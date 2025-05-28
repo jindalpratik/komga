@@ -1,11 +1,29 @@
 komga:
   workspace: localdb
   database:
-    file: \${komga.config-dir}/\${komga.workspace}.sqlite
+    # For local development, you can switch between SQLITE and POSTGRES
+#    type: SQLITE
+#    file: \${komga.config-dir}/\${komga.workspace}.sqlite
+#     PostgreSQL settings for local development
+     type: POSTGRES
+     host: localhost
+     port: 5432
+     name: komga
+     username: postgres
+     password: password
+     hikari:
+       maximum-pool-size: 10
+       minimum-idle: 2
+       connection-timeout: 30000
+       idle-timeout: 600000
+       max-lifetime: 1800000
+
   lucene:
     data-directory: \${komga.config-dir}/lucene/\${komga.workspace}
+
   tasks-db:
     file: \${komga.config-dir}/\${komga.workspace}-tasks.sqlite
+
 spring:
   artemis:
     embedded:
