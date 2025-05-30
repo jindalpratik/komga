@@ -1,4 +1,4 @@
-package db.migration.sqlite
+package db.migration.sqlite.bak
 
 import com.github.f4b6a3.tsid.TsidCreator
 import org.flywaydb.core.api.migration.BaseJavaMigration

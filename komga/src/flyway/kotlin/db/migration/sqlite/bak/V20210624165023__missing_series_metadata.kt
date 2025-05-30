@@ -1,4 +1,4 @@
-package db.migration.sqlite
+package db.migration.sqlite.bak
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.apache.commons.lang3.StringUtils

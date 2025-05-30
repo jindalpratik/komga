@@ -1,4 +1,5 @@
 -- This is a multi-steps migration, mixing 2 SQL migrations and a Java migration in-between
+
 CREATE TABLE THUMBNAIL_BOOK
 (
     ID                 text      NOT NULL PRIMARY KEY,

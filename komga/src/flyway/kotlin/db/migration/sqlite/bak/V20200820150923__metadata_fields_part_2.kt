@@ -1,4 +1,4 @@
-package db.migration.sqlite
+package db.migration.sqlite.bak
 
 import org.flywaydb.core.api.migration.BaseJavaMigration
 import org.flywaydb.core.api.migration.Context

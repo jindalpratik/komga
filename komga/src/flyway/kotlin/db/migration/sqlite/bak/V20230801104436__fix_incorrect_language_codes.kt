@@ -1,4 +1,4 @@
-package db.migration.sqlite
+package db.migration.sqlite.bak
 
 import com.ibm.icu.util.ULocale
 import io.github.oshai.kotlinlogging.KotlinLogging
