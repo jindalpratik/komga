@@ -1,0 +1,25 @@
+CREATE TABLE HISTORICAL_EVENT
+(
+    ID        text      PRIMARY KEY,
+    TYPE      text      NOT NULL,
+    BOOK_ID   text      NULL,
+    SERIES_ID text      NULL,
+    TIMESTAMP timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (BOOK_ID) REFERENCES BOOK (ID),
+    FOREIGN KEY (SERIES_ID) REFERENCES SERIES (ID)
+);
+
+CREATE TABLE HISTORICAL_EVENT_PROPERTIES
+(
+    ID    text NOT NULL,
+    KEY   text NOT NULL,
+    VALUE text NOT NULL,
+    PRIMARY KEY (ID, KEY),
+    FOREIGN KEY (ID) REFERENCES HISTORICAL_EVENT (ID)
+);
+
+-- Add indexes for performance
+CREATE INDEX idx_historical_event_type ON HISTORICAL_EVENT(TYPE);
+CREATE INDEX idx_historical_event_book_id ON HISTORICAL_EVENT(BOOK_ID);
+CREATE INDEX idx_historical_event_series_id ON HISTORICAL_EVENT(SERIES_ID);
+CREATE INDEX idx_historical_event_timestamp ON HISTORICAL_EVENT(TIMESTAMP);

@@ -1,0 +1,13 @@
+CREATE TABLE SERIES_METADATA_LINK
+(
+    LABEL     text NOT NULL,
+    URL       text NOT NULL,
+    SERIES_ID text NOT NULL,
+    FOREIGN KEY (SERIES_ID) REFERENCES SERIES (ID)
+);
+
+ALTER TABLE series_metadata
+    ADD COLUMN LINKS_LOCK boolean NOT NULL DEFAULT FALSE;
+
+CREATE INDEX idx__series_metadata_link__series_id
+    ON SERIES_METADATA_LINK (SERIES_ID);

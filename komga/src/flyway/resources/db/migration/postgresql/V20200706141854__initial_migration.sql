@@ -1,0 +1,190 @@
+CREATE TABLE LIBRARY
+(
+    ID                          text        NOT NULL PRIMARY KEY,
+    CREATED_DATE                timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    LAST_MODIFIED_DATE          timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    NAME                        text        NOT NULL,
+    ROOT                        text        NOT NULL,
+    IMPORT_COMICINFO_BOOK       boolean     NOT NULL DEFAULT TRUE,
+    IMPORT_COMICINFO_SERIES     boolean     NOT NULL DEFAULT TRUE,
+    IMPORT_COMICINFO_COLLECTION boolean     NOT NULL DEFAULT TRUE,
+    IMPORT_EPUB_BOOK            boolean     NOT NULL DEFAULT TRUE,
+    IMPORT_EPUB_SERIES          boolean     NOT NULL DEFAULT TRUE
+);
+
+CREATE TABLE "USER"
+(
+    ID                   text      NOT NULL PRIMARY KEY,
+    CREATED_DATE         timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    LAST_MODIFIED_DATE   timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    EMAIL                text      NOT NULL UNIQUE,
+    PASSWORD             text      NOT NULL,
+    SHARED_ALL_LIBRARIES boolean   NOT NULL DEFAULT TRUE,
+    ROLE_ADMIN           boolean   NOT NULL DEFAULT FALSE,
+    ROLE_FILE_DOWNLOAD   boolean   NOT NULL DEFAULT TRUE,
+    ROLE_PAGE_STREAMING  boolean   NOT NULL DEFAULT TRUE
+);
+
+CREATE TABLE USER_LIBRARY_SHARING
+(
+    USER_ID    text NOT NULL,
+    LIBRARY_ID text NOT NULL,
+    PRIMARY KEY (USER_ID, LIBRARY_ID),
+    FOREIGN KEY (USER_ID) REFERENCES "USER" (ID),
+    FOREIGN KEY (LIBRARY_ID) REFERENCES LIBRARY (ID)
+);
+
+CREATE TABLE SERIES
+(
+    ID                 text      NOT NULL PRIMARY KEY,
+    CREATED_DATE       timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    LAST_MODIFIED_DATE timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FILE_LAST_MODIFIED timestamp NOT NULL,
+    NAME               text      NOT NULL,
+    URL                text      NOT NULL,
+    LIBRARY_ID         text      NOT NULL,
+    FOREIGN KEY (LIBRARY_ID) REFERENCES LIBRARY (ID)
+);
+
+CREATE TABLE SERIES_METADATA
+(
+    CREATED_DATE       timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    LAST_MODIFIED_DATE timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    STATUS             text      NOT NULL,
+    STATUS_LOCK        boolean   NOT NULL DEFAULT FALSE,
+    TITLE              text      NOT NULL,
+    TITLE_LOCK         boolean   NOT NULL DEFAULT FALSE,
+    TITLE_SORT         text      NOT NULL,
+    TITLE_SORT_LOCK    boolean   NOT NULL DEFAULT FALSE,
+    SERIES_ID          text      NOT NULL PRIMARY KEY,
+    FOREIGN KEY (SERIES_ID) REFERENCES SERIES (ID)
+);
+
+CREATE TABLE BOOK
+(
+    ID                 text      NOT NULL PRIMARY KEY,
+    CREATED_DATE       timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    LAST_MODIFIED_DATE timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FILE_LAST_MODIFIED timestamp NOT NULL,
+    NAME               text      NOT NULL,
+    URL                text      NOT NULL,
+    SERIES_ID          text      NOT NULL,
+    FILE_SIZE          bigint    NOT NULL DEFAULT 0,
+    NUMBER             integer   NOT NULL DEFAULT 0,
+    LIBRARY_ID         text      NOT NULL,
+    FOREIGN KEY (LIBRARY_ID) REFERENCES LIBRARY (ID),
+    FOREIGN KEY (SERIES_ID) REFERENCES SERIES (ID)
+);
+
+CREATE TABLE MEDIA
+(
+    MEDIA_TYPE         text      NULL,
+    STATUS             text      NOT NULL,
+    THUMBNAIL          bytea     NULL,
+    CREATED_DATE       timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    LAST_MODIFIED_DATE timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    COMMENT            text      NULL,
+    BOOK_ID            text      NOT NULL PRIMARY KEY,
+    PAGE_COUNT         integer   NOT NULL DEFAULT 0,
+    FOREIGN KEY (BOOK_ID) REFERENCES BOOK (ID)
+);
+
+CREATE TABLE MEDIA_PAGE
+(
+    FILE_NAME  text    NOT NULL,
+    MEDIA_TYPE text    NOT NULL,
+    NUMBER     integer NOT NULL,
+    BOOK_ID    text    NOT NULL,
+    PRIMARY KEY (BOOK_ID, NUMBER),
+    FOREIGN KEY (BOOK_ID) REFERENCES BOOK (ID)
+);
+
+CREATE TABLE MEDIA_FILE
+(
+    FILE_NAME text NOT NULL,
+    BOOK_ID   text NOT NULL,
+    FOREIGN KEY (BOOK_ID) REFERENCES BOOK (ID)
+);
+
+CREATE TABLE BOOK_METADATA
+(
+    CREATED_DATE           timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    LAST_MODIFIED_DATE     timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    AGE_RATING             integer   NULL,
+    AGE_RATING_LOCK        boolean   NOT NULL DEFAULT FALSE,
+    NUMBER                 text      NOT NULL,
+    NUMBER_LOCK            boolean   NOT NULL DEFAULT FALSE,
+    NUMBER_SORT            real      NOT NULL,
+    NUMBER_SORT_LOCK       boolean   NOT NULL DEFAULT FALSE,
+    PUBLISHER              text      NOT NULL DEFAULT '',
+    PUBLISHER_LOCK         boolean   NOT NULL DEFAULT FALSE,
+    READING_DIRECTION      text      NULL,
+    READING_DIRECTION_LOCK boolean   NOT NULL DEFAULT FALSE,
+    RELEASE_DATE           date      NULL,
+    RELEASE_DATE_LOCK      boolean   NOT NULL DEFAULT FALSE,
+    SUMMARY                text      NOT NULL DEFAULT '',
+    SUMMARY_LOCK           boolean   NOT NULL DEFAULT FALSE,
+    TITLE                  text      NOT NULL,
+    TITLE_LOCK             boolean   NOT NULL DEFAULT FALSE,
+    AUTHORS_LOCK           boolean   NOT NULL DEFAULT FALSE,
+    BOOK_ID                text      NOT NULL PRIMARY KEY,
+    FOREIGN KEY (BOOK_ID) REFERENCES BOOK (ID)
+);
+
+CREATE TABLE BOOK_METADATA_AUTHOR
+(
+    NAME    text NOT NULL,
+    ROLE    text NOT NULL,
+    BOOK_ID text NOT NULL,
+    FOREIGN KEY (BOOK_ID) REFERENCES BOOK (ID)
+);
+
+CREATE TABLE READ_PROGRESS
+(
+    BOOK_ID            text      NOT NULL,
+    USER_ID            text      NOT NULL,
+    CREATED_DATE       timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    LAST_MODIFIED_DATE timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PAGE               integer   NOT NULL,
+    COMPLETED          boolean   NOT NULL,
+    PRIMARY KEY (BOOK_ID, USER_ID),
+    FOREIGN KEY (BOOK_ID) REFERENCES BOOK (ID),
+    FOREIGN KEY (USER_ID) REFERENCES "USER" (ID)
+);
+
+CREATE TABLE COLLECTION
+(
+    ID                 text      NOT NULL PRIMARY KEY,
+    NAME               text      NOT NULL,
+    ORDERED            boolean   NOT NULL DEFAULT FALSE,
+    SERIES_COUNT       integer   NOT NULL,
+    CREATED_DATE       timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    LAST_MODIFIED_DATE timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE COLLECTION_SERIES
+(
+    COLLECTION_ID text    NOT NULL,
+    SERIES_ID     text    NOT NULL,
+    NUMBER        integer NOT NULL,
+    PRIMARY KEY (COLLECTION_ID, SERIES_ID),
+    FOREIGN KEY (COLLECTION_ID) REFERENCES COLLECTION (ID),
+    FOREIGN KEY (SERIES_ID) REFERENCES SERIES (ID)
+);
+
+-- Create indexes for better performance
+CREATE INDEX idx_library_name ON LIBRARY(NAME);
+CREATE INDEX idx_user_email ON "USER"(EMAIL);
+CREATE INDEX idx_series_library_id ON SERIES(LIBRARY_ID);
+CREATE INDEX idx_series_name ON SERIES(NAME);
+CREATE INDEX idx_book_series_id ON BOOK(SERIES_ID);
+CREATE INDEX idx_book_library_id ON BOOK(LIBRARY_ID);
+CREATE INDEX idx_book_number ON BOOK(NUMBER);
+CREATE INDEX idx_media_book_id ON MEDIA(BOOK_ID);
+CREATE INDEX idx_media_page_book_id ON MEDIA_PAGE(BOOK_ID);
+CREATE INDEX idx_book_metadata_book_id ON BOOK_METADATA(BOOK_ID);
+CREATE INDEX idx_book_metadata_author_book_id ON BOOK_METADATA_AUTHOR(BOOK_ID);
+CREATE INDEX idx_read_progress_user_id ON READ_PROGRESS(USER_ID);
+CREATE INDEX idx_read_progress_book_id ON READ_PROGRESS(BOOK_ID);
+CREATE INDEX idx_collection_series_collection_id ON COLLECTION_SERIES(COLLECTION_ID);
+CREATE INDEX idx_collection_series_series_id ON COLLECTION_SERIES(SERIES_ID);

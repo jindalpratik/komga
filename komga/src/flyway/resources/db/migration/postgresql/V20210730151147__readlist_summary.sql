@@ -1,0 +1,2 @@
+ALTER TABLE readlist
+    ADD COLUMN SUMMARY text NOT NULL DEFAULT '';

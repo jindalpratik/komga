@@ -1,0 +1,28 @@
+CREATE TABLE READLIST
+(
+    ID                 text      NOT NULL PRIMARY KEY,
+    NAME               text      NOT NULL,
+    BOOK_COUNT         integer   NOT NULL,
+    CREATED_DATE       timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    LAST_MODIFIED_DATE timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE READLIST_BOOK
+(
+    READLIST_ID text    NOT NULL,
+    BOOK_ID     text    NOT NULL,
+    NUMBER      integer NOT NULL,
+    PRIMARY KEY (READLIST_ID, BOOK_ID),
+    FOREIGN KEY (READLIST_ID) REFERENCES READLIST (ID),
+    FOREIGN KEY (BOOK_ID) REFERENCES BOOK (ID)
+);
+
+-- Add indexes for better performance
+CREATE INDEX idx_readlist_name ON READLIST(NAME);
+CREATE INDEX idx_readlist_book_readlist_id ON READLIST_BOOK(READLIST_ID);
+CREATE INDEX idx_readlist_book_book_id ON READLIST_BOOK(BOOK_ID);
+CREATE INDEX idx_readlist_book_number ON READLIST_BOOK(READLIST_ID, NUMBER);
+
+-- Add column to library table
+ALTER TABLE library
+    ADD COLUMN IMPORT_COMICINFO_READLIST boolean NOT NULL DEFAULT TRUE;

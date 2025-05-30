@@ -1,0 +1,2 @@
+ALTER TABLE media_page
+    ADD COLUMN FILE_SIZE bigint NULL;

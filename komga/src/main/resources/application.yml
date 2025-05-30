@@ -13,6 +13,8 @@ logging:
     org.apache.activemq.audit: WARN
     org.apache.fontbox.cff.Type1CharString: ERROR
     org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer: ERROR
+#    org.flywaydb: DEBUG
+#    org.springframework.boot.autoconfigure.flyway: DEBUG
 
 komga:
   database:
@@ -56,6 +58,8 @@ spring:
       library-scan-startup: \${komga.libraries-scan-startup:false}
       delete-empty-collections: \${komga.delete-empty-collections:true}
       delete-empty-read-lists: \${komga.delete-empty-read-lists:true}
+    group: true
+    out-of-order: false
 
   thymeleaf:
     prefix: classpath:/public/
@@ -78,3 +82,5 @@ spring:
   jackson:
     deserialization:
       FAIL_ON_NULL
+
+

@@ -1,0 +1,10 @@
+CREATE TABLE ANNOUNCEMENTS_READ
+(
+    USER_ID         text NOT NULL,
+    ANNOUNCEMENT_ID text NOT NULL,
+    PRIMARY KEY (USER_ID, ANNOUNCEMENT_ID),
+    FOREIGN KEY (USER_ID) REFERENCES "USER" (ID)
+);
+
+-- Add index for performance
+CREATE INDEX idx__announcements_read__user_id ON ANNOUNCEMENTS_READ (USER_ID);

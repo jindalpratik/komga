@@ -1,0 +1,4 @@
+UPDATE media
+SET STATUS = 'OUTDATED'
+WHERE MEDIA_TYPE = 'application/pdf'
+  AND STATUS = 'READY';

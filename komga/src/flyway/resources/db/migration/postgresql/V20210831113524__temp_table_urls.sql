@@ -1,0 +1,4 @@
+CREATE TABLE TEMP_URL_LIST
+(
+    URL text NOT NULL
+);

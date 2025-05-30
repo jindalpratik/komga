@@ -1,0 +1,27 @@
+CREATE TABLE THUMBNAIL_COLLECTION
+(
+    ID                 text      NOT NULL PRIMARY KEY,
+    SELECTED           boolean   NOT NULL DEFAULT FALSE,
+    THUMBNAIL          bytea     NOT NULL,
+    TYPE               text      NOT NULL,
+    COLLECTION_ID      text      NOT NULL,
+    CREATED_DATE       timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    LAST_MODIFIED_DATE timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (COLLECTION_ID) REFERENCES COLLECTION (ID)
+);
+
+CREATE TABLE THUMBNAIL_READLIST
+(
+    ID                 text      NOT NULL PRIMARY KEY,
+    SELECTED           boolean   NOT NULL DEFAULT FALSE,
+    THUMBNAIL          bytea     NOT NULL,
+    TYPE               text      NOT NULL,
+    READLIST_ID        text      NOT NULL,
+    CREATED_DATE       timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    LAST_MODIFIED_DATE timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (READLIST_ID) REFERENCES READLIST (ID)
+);
+
+-- Add indexes for performance
+CREATE INDEX idx_thumbnail_collection_collection_id ON THUMBNAIL_COLLECTION(COLLECTION_ID);
+CREATE INDEX idx_thumbnail_readlist_readlist_id ON THUMBNAIL_READLIST(READLIST_ID);

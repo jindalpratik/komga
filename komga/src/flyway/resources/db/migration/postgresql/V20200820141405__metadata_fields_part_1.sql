@@ -1,0 +1,66 @@
+-- Add columns to series_metadata table
+ALTER TABLE series_metadata
+    ADD COLUMN PUBLISHER text NOT NULL DEFAULT '';
+
+ALTER TABLE series_metadata
+    ADD COLUMN PUBLISHER_LOCK boolean NOT NULL DEFAULT FALSE;
+
+ALTER TABLE series_metadata
+    ADD COLUMN READING_DIRECTION text NULL;
+
+ALTER TABLE series_metadata
+    ADD COLUMN READING_DIRECTION_LOCK boolean NOT NULL DEFAULT FALSE;
+
+ALTER TABLE series_metadata
+    ADD COLUMN AGE_RATING integer NULL;
+
+ALTER TABLE series_metadata
+    ADD COLUMN AGE_RATING_LOCK boolean NOT NULL DEFAULT FALSE;
+
+ALTER TABLE series_metadata
+    ADD COLUMN SUMMARY text NOT NULL DEFAULT '';
+
+ALTER TABLE series_metadata
+    ADD COLUMN SUMMARY_LOCK boolean NOT NULL DEFAULT FALSE;
+
+ALTER TABLE series_metadata
+    ADD COLUMN LANGUAGE text NOT NULL DEFAULT '';
+
+ALTER TABLE series_metadata
+    ADD COLUMN LANGUAGE_LOCK boolean NOT NULL DEFAULT FALSE;
+
+ALTER TABLE series_metadata
+    ADD COLUMN GENRES_LOCK boolean NOT NULL DEFAULT FALSE;
+
+ALTER TABLE series_metadata
+    ADD COLUMN TAGS_LOCK boolean NOT NULL DEFAULT FALSE;
+
+-- Create metadata tables
+CREATE TABLE SERIES_METADATA_GENRE
+(
+    GENRE     text NOT NULL,
+    SERIES_ID text NOT NULL,
+    FOREIGN KEY (SERIES_ID) REFERENCES SERIES (ID)
+);
+
+CREATE TABLE SERIES_METADATA_TAG
+(
+    TAG       text NOT NULL,
+    SERIES_ID text NOT NULL,
+    FOREIGN KEY (SERIES_ID) REFERENCES SERIES (ID)
+);
+
+CREATE TABLE BOOK_METADATA_TAG
+(
+    TAG     text NOT NULL,
+    BOOK_ID text NOT NULL,
+    FOREIGN KEY (BOOK_ID) REFERENCES BOOK (ID)
+);
+
+-- Add indexes for better performance
+CREATE INDEX idx_series_metadata_genre_series_id ON SERIES_METADATA_GENRE(SERIES_ID);
+CREATE INDEX idx_series_metadata_genre_genre ON SERIES_METADATA_GENRE(GENRE);
+CREATE INDEX idx_series_metadata_tag_series_id ON SERIES_METADATA_TAG(SERIES_ID);
+CREATE INDEX idx_series_metadata_tag_tag ON SERIES_METADATA_TAG(TAG);
+CREATE INDEX idx_book_metadata_tag_book_id ON BOOK_METADATA_TAG(BOOK_ID);
+CREATE INDEX idx_book_metadata_tag_tag ON BOOK_METADATA_TAG(TAG);

@@ -1,0 +1,29 @@
+CREATE TABLE BOOK_METADATA_AGGREGATION
+(
+    CREATED_DATE       timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    LAST_MODIFIED_DATE timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    RELEASE_DATE       date      NULL,
+    SUMMARY            text      NOT NULL DEFAULT '',
+    SUMMARY_NUMBER     text      NOT NULL DEFAULT '',
+    SERIES_ID          text      NOT NULL PRIMARY KEY,
+    FOREIGN KEY (SERIES_ID) REFERENCES SERIES (ID)
+);
+
+CREATE TABLE BOOK_METADATA_AGGREGATION_AUTHOR
+(
+    NAME      text NOT NULL,
+    ROLE      text NOT NULL,
+    SERIES_ID text NOT NULL,
+    FOREIGN KEY (SERIES_ID) REFERENCES SERIES (ID)
+);
+
+-- Insert all existing series into the aggregation table
+INSERT INTO BOOK_METADATA_AGGREGATION(SERIES_ID)
+SELECT ID
+FROM SERIES;
+
+-- Add indexes for better performance
+CREATE INDEX idx_book_metadata_aggregation_series_id ON BOOK_METADATA_AGGREGATION(SERIES_ID);
+CREATE INDEX idx_book_metadata_aggregation_author_series_id ON BOOK_METADATA_AGGREGATION_AUTHOR(SERIES_ID);
+CREATE INDEX idx_book_metadata_aggregation_author_name ON BOOK_METADATA_AGGREGATION_AUTHOR(NAME);
+CREATE INDEX idx_book_metadata_aggregation_author_role ON BOOK_METADATA_AGGREGATION_AUTHOR(ROLE);
