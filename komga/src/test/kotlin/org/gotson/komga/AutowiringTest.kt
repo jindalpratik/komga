@@ -17,7 +17,8 @@ class AutowiringTest(
 
   @Test
   fun `Application has 2 dsl contexts`() {
-    assertThat(dataSources).hasSize(2)
+    // There is only 1 datasource in the application now
+    assertThat(dataSources).hasSize(1)
     assertThat(dslContexts).hasSize(2)
   }
 }

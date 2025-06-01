@@ -6,7 +6,7 @@ import org.jetbrains.kotlin.util.prefixIfNot
 
 buildscript {
   dependencies {
-    classpath("org.postgresql:postgresql:42.7.1")
+    classpath("org.postgresql:postgresql:42.7.4")
     classpath("org.flywaydb:flyway-database-postgresql:10.4.1")
   }
 }
@@ -117,10 +117,7 @@ dependencies {
 
   implementation("com.github.ben-manes.caffeine:caffeine")
 
-  implementation("org.xerial:sqlite-jdbc:3.48.0.0")
-
   jooqGenerator("org.postgresql:postgresql:42.7.4")
-  jooqGenerator("org.xerial:sqlite-jdbc:3.48.0.0")
 
   if (version.toString().endsWith(".0.0")) {
     ksp("com.github.gotson.bestbefore:bestbefore-processor-kotlin:0.1.0")
@@ -254,7 +251,6 @@ springBoot {
 // Database URLs - PostgreSQL for main, SQLite for tasks
 val databaseUrls = mapOf(
   "main" to "jdbc:postgresql://localhost:5432/komga?user=postgres&password=password",
-  "tasks" to "jdbc:sqlite:${project.layout.buildDirectory.get()}/generated/flyway/tasks/tasks.sqlite",
 )
 
 // Migration directories - separate for PostgreSQL and SQLite
@@ -262,10 +258,6 @@ val migrationDirs = mapOf(
   "main" to listOf(
     "$projectDir/src/flyway/resources/db/migration/postgresql",
     "$projectDir/src/flyway/kotlin/db/migration/postgresql",
-  ),
-  "tasks" to listOf(
-    "$projectDir/src/flyway/resources/tasks/migration/sqlite",
-    // "$projectDir/src/flyway/kotlin/tasks/migration/sqlite",
   ),
 )
 
@@ -284,24 +276,6 @@ task("flywayMigrateMain", FlywayMigrateTask::class) {
     "delete-empty-collections" to "true",
     "delete-empty-read-lists" to "true",
   )
-
-  // in order to include the Java migrations, flywayClasses must be run before flywayMigrate
-  dependsOn("flywayClasses")
-  migrationDirs[id]?.forEach { inputs.dir(it) }
-  outputs.dir("${project.layout.buildDirectory.get()}/generated/flyway/$id")
-  doFirst {
-    delete(outputs.files)
-    mkdir("${project.layout.buildDirectory.get()}/generated/flyway/$id")
-  }
-
-  mixed = true
-}
-
-// Flyway task for tasks database (SQLite)
-task("flywayMigrateTasks", FlywayMigrateTask::class) {
-  val id = "tasks"
-  url = databaseUrls[id]
-  locations = arrayOf("classpath:tasks/migration/sqlite")
 
   // in order to include the Java migrations, flywayClasses must be run before flywayMigrate
   dependsOn("flywayClasses")
@@ -341,27 +315,6 @@ jooq {
         }
       }
     }
-
-    // Tasks database configuration (SQLite)
-    create("tasks") {
-      jooqConfiguration.apply {
-        logging = org.jooq.meta.jaxb.Logging.WARN
-        jdbc.apply {
-          driver = "org.sqlite.JDBC"
-          url = databaseUrls["tasks"]
-        }
-
-        generator.apply {
-          database.apply {
-            name = "org.jooq.meta.sqlite.SQLiteDatabase"
-          }
-
-          target.apply {
-            packageName = "org.gotson.komga.jooq.tasks"
-          }
-        }
-      }
-    }
   }
 }
 tasks.named<JooqGenerate>("generateJooq") {
@@ -370,15 +323,9 @@ tasks.named<JooqGenerate>("generateJooq") {
   dependsOn("flywayMigrateMain")
 }
 
-tasks.named<JooqGenerate>("generateTasksJooq") {
-  migrationDirs["tasks"]?.forEach { inputs.dir(it) }
-  allInputsDeclared = true
-  dependsOn("flywayMigrateTasks")
-}
-
 tasks.whenTaskAdded {
   if (name == "kaptGenerateStubsKotlin") {
-    dependsOn("generateTasksJooq")
+    dependsOn("generateJooq")
   }
 }
 sourceSets {
@@ -396,10 +343,10 @@ sourceSets {
   }
 }
 tasks.runKtlintCheckOverMainSourceSet {
-  dependsOn("generateTasksJooq")
+  dependsOn("generateJooq")
 }
 tasks.compileKotlin {
-  dependsOn("generateTasksJooq")
+  dependsOn("generateJooq")
 }
 
 openApi {

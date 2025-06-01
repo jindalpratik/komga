@@ -42,7 +42,7 @@ class SeriesCollectionDao(
 
   private val sorts =
     mapOf(
-      "name" to c.NAME.collate(SqliteUdfDataSource.COLLATION_UNICODE_3),
+      "name" to c.NAME,
     )
 
   override fun findByIdOrNull(

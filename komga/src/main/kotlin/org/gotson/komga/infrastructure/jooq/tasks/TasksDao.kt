@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.gotson.komga.application.tasks.Task
 import org.gotson.komga.application.tasks.TasksRepository
-import org.gotson.komga.jooq.tasks.Tables
+import org.gotson.komga.jooq.main.Tables
 import org.jooq.DSLContext
 import org.jooq.Query
 import org.jooq.Record2
@@ -20,7 +20,6 @@ import java.time.ZoneId
 private val logger = KotlinLogging.logger {}
 
 @Component
-@DependsOn("flywaySecondaryMigrationInitializer")
 class TasksDao(
   @Qualifier("tasksDslContext")
   private val dsl: DSLContext,

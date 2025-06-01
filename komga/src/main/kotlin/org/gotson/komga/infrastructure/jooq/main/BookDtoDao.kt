@@ -71,7 +71,7 @@ class BookDtoDao(
 
   private val sorts =
     mapOf(
-      "name" to b.NAME.collate(SqliteUdfDataSource.COLLATION_UNICODE_3),
+      "name" to b.NAME,
       "series" to sd.TITLE_SORT.noCase(),
       "created" to b.CREATED_DATE,
       "createdDate" to b.CREATED_DATE,
@@ -85,7 +85,7 @@ class BookDtoDao(
       "media.comment" to m.COMMENT.noCase(),
       "media.mediaType" to m.MEDIA_TYPE.noCase(),
       "media.pagesCount" to m.PAGE_COUNT,
-      "metadata.title" to d.TITLE.collate(SqliteUdfDataSource.COLLATION_UNICODE_3),
+      "metadata.title" to d.TITLE,
       "metadata.numberSort" to d.NUMBER_SORT,
       "metadata.releaseDate" to d.RELEASE_DATE,
       "readProgress.lastModified" to r.LAST_MODIFIED_DATE,

@@ -93,7 +93,7 @@ class SeriesDtoDao(
       "booksMetadata.releaseDate" to bma.RELEASE_DATE,
       "readDate" to rs.MOST_RECENT_READ_DATE,
       "collection.number" to cs.NUMBER,
-      "name" to s.NAME.collate(SqliteUdfDataSource.COLLATION_UNICODE_3),
+      "name" to s.NAME,
       "booksCount" to s.BOOK_COUNT,
       "random" to DSL.rand(),
     )
@@ -143,16 +143,15 @@ class SeriesDtoDao(
     val seriesIds = luceneHelper.searchEntitiesIds(search.fullTextSearch, LuceneEntity.Series)
     val searchCondition = s.ID.inOrNoCondition(seriesIds)
 
-    val firstChar = lower(substring(d.TITLE_SORT, 1, 1))
+    // Use inline values to avoid parameter binding issues
+    val firstCharExpr = lower(substring(d.TITLE_SORT, DSL.inline(1), DSL.inline(1)))
+
     return dsl
-      .select(firstChar, count())
+      .select(firstCharExpr, count())
       .from(s)
-      .leftJoin(d)
-      .on(s.ID.eq(d.SERIES_ID))
-      .leftJoin(bma)
-      .on(s.ID.eq(bma.SERIES_ID))
-      .leftJoin(rs)
-      .on(s.ID.eq(rs.SERIES_ID))
+      .leftJoin(d).on(s.ID.eq(d.SERIES_ID))
+      .leftJoin(bma).on(s.ID.eq(bma.SERIES_ID))
+      .leftJoin(rs).on(s.ID.eq(rs.SERIES_ID))
       .and(readProgressConditionSeries(context.userId))
       .apply {
         joins.forEach { join ->
@@ -171,13 +170,15 @@ class SeriesDtoDao(
             is RequiredJoin.ReadList -> Unit
           }
         }
-      }.where(conditionsRefined)
+      }
+      .where(conditionsRefined)
       .and(searchCondition)
-      .groupBy(firstChar)
+      .groupBy(firstCharExpr)
       .map {
         GroupCountDto(it.value1(), it.value2())
       }
   }
+
 
   override fun findByIdOrNull(
     seriesId: String,

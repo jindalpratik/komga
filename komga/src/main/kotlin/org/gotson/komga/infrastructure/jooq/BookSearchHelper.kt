@@ -149,7 +149,6 @@ class BookSearchHelper(
               .from(Tables.BOOK_METADATA_TAG)
               .where(
                 Tables.BOOK_METADATA_TAG.TAG
-                  .collate(SqliteUdfDataSource.COLLATION_UNICODE_3)
                   .equalIgnoreCase(tag),
               )
           }
@@ -179,14 +178,12 @@ class BookSearchHelper(
                 if (name != null)
                   and(
                     Tables.BOOK_METADATA_AUTHOR.NAME
-                      .collate(SqliteUdfDataSource.COLLATION_UNICODE_3)
                       .equalIgnoreCase(name),
                   )
               }.apply {
                 if (role != null)
                   and(
                     Tables.BOOK_METADATA_AUTHOR.ROLE
-                      .collate(SqliteUdfDataSource.COLLATION_UNICODE_3)
                       .equalIgnoreCase(role),
                   )
               }

@@ -10,7 +10,6 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Primary
 import org.springframework.core.env.Environment
-import org.sqlite.SQLiteDataSource
 import javax.sql.DataSource
 
 @Configuration
@@ -18,27 +17,19 @@ class DataSourcesConfiguration(
   private val komgaProperties: KomgaProperties,
   private val environment: Environment,
 ) {
-  @Bean("sqliteDataSource")
+  @Bean("postgresDataSource")
   @Primary
-  fun sqliteDataSource(): DataSource {
+  fun postgresDataSource(): DataSource {
     // Check if PostgreSQL is configured via standard Spring datasource properties
     val springDatasourceUrl = environment.getProperty("spring.datasource.url")
 
     return buildPostgresDataSource("PostgresMainPool")
   }
 
-  @Bean("tasksDataSource")
-  fun tasksDataSource(): DataSource =
-    buildSqliteDataSource("SqliteTasksPool", SQLiteDataSource::class.java, komgaProperties.tasksDb)
-      .apply {
-        // force pool size to 1 for tasks datasource
-        this.maximumPoolSize = 1
-      }
-
   private fun buildPostgresDataSource(poolName: String): HikariDataSource {
     val config = HikariConfig().apply {
       // Use Spring Boot's standard datasource properties
-      jdbcUrl = environment.getProperty("spring.datasource.url") ?: "jdbc:postgresql://localhost:5432/komga"
+      jdbcUrl = "jdbc:postgresql://localhost:5432/komga"
       username = environment.getProperty("spring.datasource.username") ?: "postgres"
       password = environment.getProperty("spring.datasource.password") ?: "password"
       driverClassName = "org.postgresql.Driver"
@@ -68,51 +59,5 @@ class DataSourcesConfiguration(
 
     return HikariDataSource(config)
   }
-
-  private fun buildSqliteDataSource(
-    poolName: String,
-    dataSourceClass: Class<out SQLiteDataSource>,
-    databaseProps: KomgaProperties.Database,
-  ): HikariDataSource {
-    val extraPragmas =
-      databaseProps.pragmas.let {
-        if (it.isEmpty())
-          ""
-        else
-          "?" + it.map { (key, value) -> "$key=$value" }.joinToString(separator = "&")
-      }
-
-    val dataSource =
-      DataSourceBuilder
-        .create()
-        .driverClassName("org.sqlite.JDBC")
-        .url("jdbc:sqlite:${databaseProps.file}$extraPragmas")
-        .type(dataSourceClass)
-        .build()
-
-    with(dataSource) {
-      setEnforceForeignKeys(true)
-      setGetGeneratedKeys(false)
-    }
-    with(databaseProps) {
-      journalMode?.let { dataSource.setJournalMode(it.name) }
-      busyTimeout?.let { dataSource.config.busyTimeout = it.toMillis().toInt() }
-    }
-
-    val poolSize =
-      if (databaseProps.file.contains(":memory:") || databaseProps.file.contains("mode=memory"))
-        1
-      else if (databaseProps.poolSize != null)
-        databaseProps.poolSize!!
-      else
-        Runtime.getRuntime().availableProcessors().coerceAtMost(databaseProps.maxPoolSize.coerceAtLeast(10))
-
-    return HikariDataSource(
-      HikariConfig().apply {
-        this.dataSource = dataSource
-        this.poolName = poolName
-        this.maximumPoolSize = poolSize
-      },
-    )
-  }
 }
+

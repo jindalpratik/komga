@@ -43,7 +43,7 @@ class ReadListDao(
 
   private val sorts =
     mapOf(
-      "name" to rl.NAME.collate(SqliteUdfDataSource.COLLATION_UNICODE_3),
+      "name" to rl.NAME,
       "createdDate" to rl.CREATED_DATE,
       "lastModifiedDate" to rl.LAST_MODIFIED_DATE,
     )
