@@ -63,7 +63,7 @@ class KomgaProperties {
     var poolSize: Int? = null
 
     @get:Positive
-    var maxPoolSize: Int = 5
+    var maxPoolSize: Int = 1
 
     @DurationUnit(ChronoUnit.SECONDS)
     var busyTimeout: Duration? = null
