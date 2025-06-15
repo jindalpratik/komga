@@ -25,6 +25,7 @@ import org.gotson.komga.domain.model.makeLibrary
 import org.gotson.komga.domain.model.makeSeries
 import org.gotson.komga.domain.persistence.BookMetadataRepository
 import org.gotson.komga.domain.persistence.BookRepository
+import org.gotson.komga.domain.persistence.HistoricalEventRepository
 import org.gotson.komga.domain.persistence.KomgaUserRepository
 import org.gotson.komga.domain.persistence.LibraryRepository
 import org.gotson.komga.domain.persistence.MediaRepository
@@ -39,6 +40,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.test.context.TestPropertySource
+import org.springframework.transaction.annotation.Transactional
 import java.io.FileNotFoundException
 import java.nio.file.FileAlreadyExistsException
 import java.nio.file.Paths
@@ -47,6 +50,8 @@ import kotlin.io.path.createDirectory
 import kotlin.io.path.createFile
 
 @SpringBootTest
+@Transactional // Add this
+@TestPropertySource(properties = ["spring.jpa.hibernate.ddl-auto=create-drop"])
 class BookImporterTest(
   @Autowired private val bookImporter: BookImporter,
   @Autowired private val bookRepository: BookRepository,
@@ -61,6 +66,8 @@ class BookImporterTest(
   @Autowired private val readListRepository: ReadListRepository,
   @Autowired private val readListLifecycle: ReadListLifecycle,
 ) {
+  @Autowired
+  private lateinit var historicalEventRepository: HistoricalEventRepository
   private val library = makeLibrary("lib", "file:/library")
   private val user1 = KomgaUser("user1@example.org", "")
   private val user2 = KomgaUser("user2@example.org", "")
